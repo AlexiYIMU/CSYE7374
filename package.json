@@ -20,17 +20,31 @@
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-2": "^6.24.1",
     "bootstrap": "^4.0.0",
-    "css-loader": "^0.28.10",
+    "css-loader": "^0.28.11",
     "i": "^0.3.6",
     "json-loader": "^0.5.7",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "reactstrap": "^5.0.0-beta.2",
-    "style-loader": "^0.20.2",
+    "style-loader": "^0.20.3",
     "truffle-contract": "^3.0.4",
     "web3": "^0.20.5",
     "webpack": "^4.0.1",
     "webpack-cli": "^2.0.9",
     "webpack-dev-server": "^3.0.0"
+  },
+  "dependencies": {
+    "event": "^1.0.0",
+    "file-loader": "^6.0.0",
+    "file-saver": "^2.0.2",
+    "moment": "^2.24.0",
+    "react-cam": "^1.1.11",
+    "react-html5-camera-photo": "^1.5.4",
+    "react-native-camera": "git+https://git@github.com/react-native-community/react-native-camera.git",
+    "react-redux": "^7.2.0",
+    "react-router-dom": "^5.1.2",
+    "react-webcam": "^5.0.1",
+    "redux": "^4.0.5",
+    "url-loader": "^4.0.0"
   }
 }

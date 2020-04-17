@@ -1,4 +1,5 @@
 import React from 'react'
+import emitter from './Events';
 
 class from extends React.Component {
   render() {

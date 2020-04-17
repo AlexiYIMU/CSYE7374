@@ -25,6 +25,9 @@ module.exports = {
         test: /\.json$/,
         loader: 'json-loader',
         include: '/build/contracts/'
+      }, {
+        test: /\.(png|jpg)$/,
+        loader: 'url-loader?limit=8192'
       }
     ]
   }
