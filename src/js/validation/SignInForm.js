@@ -19,6 +19,7 @@ class SignInForm extends Component {
         let target = e.target;
         let value = target.type === 'checkbox' ? target.checked : target.value;
         let name = target.name;
+        let password = target.password;
 
         this.setState({
           [name]: value
@@ -27,12 +28,20 @@ class SignInForm extends Component {
 
     handleSubmit(e) {
         e.preventDefault();
+         if((email.value == localStorage.getItem('name')) && (password.value == localStorage.getItem('password')))
+        {
+            console.log('The form was submitted with the following data:');
+            console.log(this.state);
+            let email = this.state.email;
+            let password = this.state.password;
+            this.props.history.push("/vote");
+        }
+        else{
+            alert('Please check your name and password.');
+            //console.log('Please check your name and password.');
+        }
 
-        console.log('The form was submitted with the following data:');
-        console.log(this.state);
-        let email = this.state.email;
-        let password = this.state.password;
-        this.props.history.push("/vote");
+        
 
     }
 

@@ -65,7 +65,9 @@ class SignUpForm extends Component {
             alert('User already exists')
           }else{
             console.log('Registration success');
-            alert('Registration success')
+            alert('Registration success');
+            localStorage.setItem('password', password.value);
+            localStorage.setItem('name', name );
           }
         });
           // let data = this.state;
