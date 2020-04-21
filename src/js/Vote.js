@@ -10,7 +10,7 @@ import 'bootstrap/dist/css/bootstrap.css'
 import moment from 'moment';
 
 
-var storage=window.localStorage;
+var storage = window.localStorage;
 
 class Vote extends React.Component {
   constructor(props) {
@@ -21,8 +21,8 @@ class Vote extends React.Component {
       hasVoted: false,
       loading: true,
       voting: false,
-      addVoters:false,
-      voters:[],
+      addVoters: false,
+      voters: [],
     }
 
     if (typeof web3 != 'undefined') {
@@ -43,20 +43,20 @@ class Vote extends React.Component {
   componentDidMount() {
     const auditList = storage.getItem('audit')
     const voters = [...this.state.voters]
-    if(auditList) {
+    if (auditList) {
       let obj = JSON.parse(auditList)
       console.log(obj)
-      obj.map((voter)=>{
+      obj.map((voter) => {
         console.log("im in map")
         console.log(voter)
         voters.push({
-          address:voter.address,
-          voteId:voter.voteId,
-          timeRecord:voter.timeRecord
+          address: voter.address,
+          voteId: voter.voteId,
+          timeRecord: voter.timeRecord
         });
       })
     }
-    this.setState({voters:voters});
+    this.setState({ voters: voters });
     console.log("show auditList")
     console.log(auditList)
     console.log("show done")
@@ -87,8 +87,8 @@ class Vote extends React.Component {
   }
 
   watchVote() {
-    this.electionInstance.voterEvent().watch((error,result)=> {
-      if(!error) {
+    this.electionInstance.voterEvent().watch((error, result) => {
+      if (!error) {
         let timeNow = moment().format("YYYY-MM-DD HH:mm:ss")
         console.log("getting event -----------" + result);
         // for(let key in result){
@@ -102,9 +102,9 @@ class Vote extends React.Component {
         const voters = [];
 
         voters.push({
-          address:voter_address,
-          voteId:voter_id,
-          timeRecord:timeNow
+          address: voter_address,
+          voteId: voter_id,
+          timeRecord: timeNow
         });
 
         let auditList = storage.getItem('audit')
@@ -116,33 +116,33 @@ class Vote extends React.Component {
         //     });
         //   })
         // }
-        if(auditList) {
+        if (auditList) {
           let obj = JSON.parse(auditList)
           console.log(obj)
-          obj.map((voter)=>{
+          obj.map((voter) => {
             console.log("im in map")
             console.log(voter)
             voters.push({
-              address:voter.address,
-              voteId:voter.voteId,
-              timeRecord:voter.timeRecord
+              address: voter.address,
+              voteId: voter.voteId,
+              timeRecord: voter.timeRecord
             });
           })
         }
         console.log("voter is ")
         console.log(voters)
-        this.setState({voters:voters});
-        this.setState({ addVoters:true});
+        this.setState({ voters: voters });
+        this.setState({ addVoters: true });
         console.log("show audit list in event")
         console.log(auditList)
         console.log("show audit done in event")
-        storage.setItem('audit',JSON.stringify(voters))
+        storage.setItem('audit', JSON.stringify(voters))
         console.log(storage)
         // for(key in this.state.voters[key]){
         //   console.log(key + ":" +this.state.voters[key])
         // }
 
-      }else{
+      } else {
         console.log(error);
       }
     })
@@ -160,11 +160,12 @@ class Vote extends React.Component {
 
   castVote(candidateId) {
     this.setState({ voting: true })
-    this.electionInstance.vote(candidateId, { from: this.state.account }).then((result) =>{
+    this.electionInstance.vote(candidateId, { from: this.state.account }).then((result) => {
       this.setState({ hasVoted: true }
       );
-      console.log("add voters is :"+this.state.addVoters);
-      this.watchVote();}
+      console.log("add voters is :" + this.state.addVoters);
+      this.watchVote();
+    }
     )
   }
 
@@ -172,18 +173,18 @@ class Vote extends React.Component {
     return (
       <div class='row'>
         <div class='col-lg-12 text-center' >
-          <div class ='cover-container d-flex w-100 h-100 p-3 mx-auto flex-column'>
-          <h1>Vote</h1>
-          <br/>
-          { this.state.loading || this.state.voting
-            ? <p class='text-center'>Loading...</p>
-            : <Content
+          <div class='cover-container d-flex w-100 h-100 p-3 mx-auto flex-column'>
+            <h1>Vote</h1>
+            <br />
+            {this.state.loading || this.state.voting
+              ? <p class='text-center'>Loading...</p>
+              : <Content
                 account={this.state.account}
                 candidates={this.state.candidates}
                 hasVoted={this.state.hasVoted}
                 castVote={this.castVote}
                 voters={this.state.voters}
-                addVoters={this.state.addVoters}/>
+                addVoters={this.state.addVoters} />
             }
           </div>
         </div>

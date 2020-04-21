@@ -7,115 +7,221 @@ import FileSaver from 'file-saver';
 import WebcamCapture from './Cam';
 
 class SignUpForm extends Component {
-    constructor(props) {
-        super(props);
+  constructor(props) {
+    super(props);
 
-        this.state = {
-            account: '0x0',
-            ssn: '',
-            password: '',
-            name: '',
-            hasAgreed: false
-        };
+    this.state = {
+      account: '0x0',
+      ssn: '',
+      password: '',
+      name: '',
+      hasAgreed: false
+    };
+    //const user = [];
 
-        if (typeof web3 != 'undefined') {
-          this.web3Provider = web3.currentProvider
-        } else {
-          this.web3Provider = new Web3.providers.HttpProvider('http://localhost:7545')
-        }
 
-        this.web3 = new Web3(this.web3Provider)
-
-        this.register = TruffleContract(Register)
-        this.register.setProvider(this.web3Provider)
-
-        this.handleChange = this.handleChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
+    if (typeof web3 != 'undefined') {
+      this.web3Provider = web3.currentProvider
+    } else {
+      this.web3Provider = new Web3.providers.HttpProvider('http://localhost:7545')
     }
 
-    componentDidMount() {
-      this.web3.eth.getCoinbase((err, account) => {
-        this.setState({ account })
-        this.register.deployed().then((registerInstance) => {
-            this.registerInstance = registerInstance
-          })
+    this.web3 = new Web3(this.web3Provider)
+
+    this.register = TruffleContract(Register)
+    this.register.setProvider(this.web3Provider)
+
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  componentDidMount() {
+    // const userList = localStorage.getItem('signup')
+    // const users = [...this.state.users]
+    // if(userList) {
+    //   let obj = JSON.parse(userList)
+    //   console.log(obj)
+    //   obj.map((user)=>{
+    //     console.log("im in map")
+    //     console.log(user)
+    //     users.push({
+    //       names:user.name,
+    //       ssn:user.ssn
+
+    //     });
+    //   })
+    // }
+
+    this.web3.eth.getCoinbase((err, account) => {
+      this.setState({ account })
+      this.register.deployed().then((registerInstance) => {
+        this.registerInstance = registerInstance
+      })
+    })
+  }
+
+  handleChange(e) {
+    let target = e.target;
+    let value = target.type === 'checkbox' ? target.checked : target.value;
+    let name = target.name;
+    let ssn = target.ssn;
+
+    this.setState({
+      [name]: value
+    });
+  }
+
+  // handleSubmit(e) {
+  //e.preventDefault();
+  handleSubmit = () => {
+    console.log('The form was submitted with the following data:');
+    console.log(this.state);
+    let obj = [];
+    const username = this.state.name;
+    const password = this.state.password;
+    const ssn = this.state.ssn;
+    let ls_users = localStorage.getItem('users');
+
+
+
+    if (this.registerInstance.registedUsers[this.state.account]) {
+      console.log('User already exists');
+      alert('User already exists')
+    } else {
+      if (ls_users) {
+        //如果ls_users存在证明已有用户注册,判断密码，用户名是否正确
+        console.log("ʕ•͡-•ʔฅ im in user existed");
+        obj = JSON.parse(ls_users)
+        //console.log(obj);
+        //对本地存储数据进行便利与输入值对比
+        let fg = false
+        obj.map(item => {
+          //ssn已存在
+          if (item.ssn === ssn) {
+            alert('This ssn has already registered')
+            this.props.history.push('/user')
+          }
+          else {
+            fg = true;
+            return fg;
+          }
         })
-    }
 
-    handleChange(e) {
-        let target = e.target;
-        let value = target.type === 'checkbox' ? target.checked : target.value;
-        let name = target.name;
+        if (fg) {//fg为ssn没有被注册过，下面判断用户名
+          //对存储数据遍历，比对用户名与ssn
+          let f = false
+          obj.map(item => {
+            if (item.username === username) {
+              f = true;
+              return f;
+            }
+          })
+          if (f) {
+            alert('This username has already been taken')
+          } else {
+            console.log('username has not been taken')
+            //没找到对将用户保存到本地，进行自动注册
 
-        this.setState({
-          [name]: value
-        });
-    }
+            this.registerInstance.regist(username, password, ssn, { from: this.state.account }).then(() => {
+              if (this.registerInstance.registedUsers[this.state.account]) {
+                console.log('User already exists');
+                alert('User already exists')
+              } else {
+                obj.push({ username, password, ssn });
+                localStorage.setItem('users', JSON.stringify(obj));
+                alert('SignUp Successfully');
+              }
 
-    handleSubmit(e) {
-        e.preventDefault();
+            });
+          }
 
-        console.log('The form was submitted with the following data:');
-        console.log(this.state);
-        let name = this.state.name;
-        let ssn = this.state.password;
-        this.registerInstance.regist(name,ssn,{from: this.state.account}).then((result)=>{
-          if(this.registerInstance.registedUsers[this.state.account]){
+        }
+      }
+
+      else {//没有用户注册，直接保存到本地存储
+
+        //let obj = JSON.parse(ls_users)
+        //console.log(obj)
+        // obj.map((user) => {
+        //   console.log("im in map")
+        //   console.log(user)
+        //   users.push({
+        //     name: user.name,
+        //     password: user.password,
+        //     ssn: user.ssn
+        //     //localStorage.setItem('users', JSON.stringify({ name, ssn }))
+        //     //this.props.history.push('/home')
+        //   })
+        // })
+        //obj.push({ username, password, ssn })
+
+        this.registerInstance.regist(username, password, ssn, { from: this.state.account }).then(() => {
+          if (this.registerInstance.registedUsers[this.state.account]) {
             console.log('User already exists');
             alert('User already exists')
-          }else{
-            console.log('Registration success');
-            alert('Registration success')
+          } else {
+            obj.push({ username, password, ssn });
+            localStorage.setItem('users', JSON.stringify(obj));
+            alert('SignUp Successfully');
           }
         });
-          // let data = this.state;
-          // let content = JSON.stringify(data);
-          // let blob = new Blob([content],{type: "text/plain;charset=utf-8"});
-          // FileSaver.saveAs(blob,"user.txt");
+
+
+
+
+
+      }
+
+
+      //this.props.history.push('/home')
     }
-
-    handleClick(){
-      window.open("/#/cam");
-    }
+  }
 
 
-    render() {
-        return (
-        <div className="FormCenter">
-            <form onSubmit={this.handleSubmit} className="FormFields">
-              <div className="FormField">
-                <label className="FormField__Label" htmlFor="name">Full Name</label>
-                <input type="text" id="name" className="FormField__Input" placeholder="Enter your full name" name="name" value={this.state.name} onChange={this.handleChange} />
-              </div>
-              <div className="FormField">
-                <label className="FormField__Label" htmlFor="password">Password</label>
-                <input type="password" id="password" className="FormField__Input" placeholder="Enter your password" name="password" value={this.state.password} onChange={this.handleChange} />
-              </div>
-              <div className="FormField">
-                <label className="FormField__Label" htmlFor="email">SSN</label>
-                <input type="ssn" id="ssn" className="FormField__Input" placeholder="Enter your SSN" name="ssn" value={this.state.ssn} onChange={this.handleChange} />
-              </div>
 
-              <div className="FormField">
-                <label className="FormField__CheckboxLabel">
-                    <input className="FormField__Checkbox" type="checkbox" name="hasAgreed" value={this.state.hasAgreed} onChange={this.handleChange} /> I agree all statements in <a href="" className="FormField__TermsLink">terms of service</a>
-                </label>
-              </div>
 
-              <div className="FormField">
-                  <button className="FormField__Button mr-20">Sign Up</button> <Link to="/user/sign-in" className="FormField__Link">I'm already member</Link>
-              </div>
-            </form>
+  handleClick() {
+    window.open("/#/cam");
+  }
 
-            <div className="FormField">
-              <label className="FormField__CheckboxLabel">
 
-                  <button onClick={this.handleClick}> camera </button>
-              </label>
-            </div>
+  render() {
+    return (
+      <div className="FormCenter" >
+        <form onSubmit={this.handleSubmit} className="FormFields">
+          <div className="FormField">
+            <label className="FormField__Label" htmlFor="name">Full Name</label>
+            <input type="text" id="name" className="FormField__Input" placeholder="Enter your full name" name="name" value={this.state.name} onChange={this.handleChange} />
           </div>
-        );
-    }
+          <div className="FormField">
+            <label className="FormField__Label" htmlFor="password">Password</label>
+            <input type="password" id="password" className="FormField__Input" placeholder="Enter your password" name="password" value={this.state.password} onChange={this.handleChange} />
+          </div>
+          <div className="FormField">
+            <label className="FormField__Label" htmlFor="email">SSN</label>
+            <input type="ssn" id="ssn" className="FormField__Input" placeholder="Enter your SSN" name="ssn" value={this.state.ssn} onChange={this.handleChange} />
+          </div>
+
+          <div className="FormField">
+            <label className="FormField__CheckboxLabel">
+              <input className="FormField__Checkbox" type="checkbox" name="hasAgreed" value={this.state.hasAgreed} onChange={this.handleChange} /> I agree all statements in <a href="" className="FormField__TermsLink">terms of service</a>
+            </label>
+          </div>
+
+          <div className="FormField">
+            <button className="FormField__Button mr-20">Sign Up</button> <Link to="/user/sign-in" className="FormField__Link">I'm already member</Link>
+          </div>
+        </form>
+
+        <div className="FormField">
+          <label className="FormField__CheckboxLabel">
+
+            <button onClick={this.handleClick}> camera </button>
+          </label>
+        </div>
+      </div>
+    );
+  }
 }
 
 export default SignUpForm;
