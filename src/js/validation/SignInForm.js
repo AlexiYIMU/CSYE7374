@@ -26,6 +26,10 @@ class SignInForm extends Component {
     });
   }
 
+  handleClick() {
+    window.open("/#/cam");
+  }
+
   handleSubmit = (e) => {
     e.preventDefault();
     // if ((email.value == localStorage.getItem('name'[0])) && (password.value == localStorage.getItem('password'[0]))) {
@@ -59,11 +63,16 @@ class SignInForm extends Component {
           fs = true;
           return fs;
         } else {
-          alert('This ssn has not registered')
           fs = false;
           return fs;
         }
       })
+
+      if(fs === false){
+        alert("SSN has been used")
+      }
+      console.log("what is fs")
+      console.log(fs)
 
       if (fs) {
         let fg = false
@@ -119,7 +128,7 @@ class SignInForm extends Component {
         <form onSubmit={this.handleSubmit} className="FormFields" onSubmit={this.handleSubmit}>
           <div className="FormField">
             <label className="FormField__Label" htmlFor="email">Full Name</label>
-            <input type="email" id="email" className="FormField__Input" placeholder="Enter your email" name="email" value={this.state.email} onChange={this.handleChange} />
+            <input type="text" id="name" className="FormField__Input" placeholder="Enter your name" name="email" value={this.state.email} onChange={this.handleChange} />
           </div>
 
           <div className="FormField">
@@ -135,9 +144,15 @@ class SignInForm extends Component {
           <div className="FormField">
             <button className="FormField__Button mr-20" onClick={this.handleSubmit}>Sign In</button>
             <Link to="/user" className="FormField__Link">Create an account</Link>
-            <button onClick={this.handleClick}> camera </button>
           </div>
         </form>
+
+        <div className="FormField">
+          <label className="FormField__CheckboxLabel">
+
+            <button onClick={this.handleClick}> camera </button>
+          </label>
+        </div>
       </div>
     );
   }
