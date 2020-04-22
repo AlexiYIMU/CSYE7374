@@ -26,8 +26,8 @@ class SignInForm extends Component {
     });
   }
 
-  handleSubmit = () => {
-    //e.preventDefault();
+  handleSubmit = (e) => {
+    e.preventDefault();
     // if ((email.value == localStorage.getItem('name'[0])) && (password.value == localStorage.getItem('password'[0]))) {
     //   console.log('The form was submitted with the following data:');
     //   console.log(this.state);
@@ -39,9 +39,9 @@ class SignInForm extends Component {
     //   alert('Please check your name and password.');
     // }
     let obj = [];
-    const username = this.state.email;
-    const password = this.state.password;
-    const ssn = this.state.ssn;
+    let username = this.state.email;
+    let password = this.state.password;
+    let ssn = this.state.ssn;
     let ls_users = localStorage.getItem('users');
 
     if (ls_users) {
@@ -49,45 +49,67 @@ class SignInForm extends Component {
       console.log("ʕ•͡-•ʔฅ im in user existed");
       obj = JSON.parse(ls_users)
       //对本地存储数据进行便利与输入值对比
-      let fg = false
-      obj.map(item => {
-        //用户名已存在
-        console.log("ʕ•͡-•ʔฅ im in mapping");
-        if (item.username === username) {
-          fg = true;
-          return fg;
+
+      let fs = false
+      obj.some(item => {
+        //ssn已存在
+        if (item.ssn === ssn) {
+          console.log(item.ssn)
+          console.log(ssn)
+          fs = true;
+          return fs;
+        } else {
+          alert('This ssn has not registered')
+          fs = false;
+          return fs;
         }
       })
-      if (fg) {//fg为真找到用户名，接下里对密码判断
-        //对存储数据遍历，比对用户名与密码
-        console.log("ʕ•͡-•ʔฅ comparing name and password");
-        let f = false
+
+      if (fs) {
+        let fg = false
         obj.map(item => {
-          if (item.password === password) {
-            f = true;
-            return f;
+          //用户名已存在
+          console.log("ʕ•͡-•ʔฅ im in mapping");
+          if (item.username === username) {
+            fg = true;
+            return fg;
           }
         })
-        if (f) {//查询正确可以正常登录
-          alert('Login successfully')
-          this.props.history.push('/vote')
+        if (fg) {//fg为真找到用户名，接下里对密码判断
+          //对存储数据遍历，比对用户名与密码
+          console.log("ʕ•͡-•ʔฅ comparing name and password");
+          let f = false
+          obj.map(item => {
+            if (item.password === password) {
+              f = true;
+              return f;
+            }
+          })
+          if (f) {//查询正确可以正常登录
+            alert('Login successfully')
+            this.props.history.push('/vote')
+          }
+          else {
+            alert('Please check your password')
+          }
+        } else {//没找到对将用户保存到本地，进行自动注册
+          // obj.push({ username, password });
+          // localStorage.setItem('users', JSON.stringify(obj))
+          alert('Please signup first')
+          this.props.history.push('/user')
         }
-        else {
-          alert('Please check your password')
-        }
-      } else {//没找到对将用户保存到本地，进行自动注册
-        // obj.push({ username, password });
+
+      } else {
+        //没有用户注册，直接保存到本地存储
+        // obj.push({ username, password })
         // localStorage.setItem('users', JSON.stringify(obj))
-        alert('Please signup first')
+        // alert('Please signup first')
         this.props.history.push('/user')
       }
-
     } else {
-      //没有用户注册，直接保存到本地存储
-      // obj.push({ username, password })
-      // localStorage.setItem('users', JSON.stringify(obj))
-      alert('Please signup first2')
+      alert('Please signup first')
       this.props.history.push('/user')
+
     }
   }
 
@@ -106,8 +128,14 @@ class SignInForm extends Component {
           </div>
 
           <div className="FormField">
+            <label className="FormField__Label" htmlFor="email">SSN</label>
+            <input type="ssn" id="ssn" className="FormField__Input" placeholder="Enter your SSN" name="ssn" value={this.state.ssn} onChange={this.handleChange} />
+          </div>
+
+          <div className="FormField">
             <button className="FormField__Button mr-20" onClick={this.handleSubmit}>Sign In</button>
             <Link to="/user" className="FormField__Link">Create an account</Link>
+            <button onClick={this.handleClick}> camera </button>
           </div>
         </form>
       </div>

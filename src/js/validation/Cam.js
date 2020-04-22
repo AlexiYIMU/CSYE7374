@@ -9,6 +9,10 @@ class WebcamCapture extends React.Component {
   capture = () => {
     const imageSrc = this.webcam.getScreenshot();
     console.log(imageSrc)
+    console.log(typeof(imageSrc))
+    alert('Captured Successfully!')
+    // this.props.router.push({ path : '/#/user' ,query : { imageSrc: imageSrc} })
+    localStorage.setItem('usersimg',imageSrc)
   };
 
   render() {

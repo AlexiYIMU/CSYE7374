@@ -6,6 +6,7 @@ import TruffleContract from 'truffle-contract';
 import FileSaver from 'file-saver';
 import WebcamCapture from './Cam';
 
+
 class SignUpForm extends Component {
   constructor(props) {
     super(props);
@@ -15,9 +16,12 @@ class SignUpForm extends Component {
       ssn: '',
       password: '',
       name: '',
-      hasAgreed: false
+      hasAgreed: false,
+      //imageSrc: localStorage.getItem('usersimg'),
     };
     //const user = [];
+    //let { location } = this.props.history;
+    //console.log(location.query.imageSrc)
 
 
     if (typeof web3 != 'undefined') {
@@ -33,6 +37,8 @@ class SignUpForm extends Component {
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+
+
   }
 
   componentDidMount() {
@@ -66,23 +72,26 @@ class SignUpForm extends Component {
     let name = target.name;
     let ssn = target.ssn;
 
+
     this.setState({
-      [name]: value
+      [name]: value,
+      [ssn]: value,
+      [password]: value
     });
   }
 
   // handleSubmit(e) {
-  //e.preventDefault();
-  handleSubmit = () => {
+  //
+  handleSubmit = (e) => {
+    e.preventDefault();
     console.log('The form was submitted with the following data:');
     console.log(this.state);
     let obj = [];
-    const username = this.state.name;
-    const password = this.state.password;
-    const ssn = this.state.ssn;
+    let username = this.state.name;
+    let password = this.state.password;
+    let ssn = this.state.ssn;
+    //let imageSrc = this.state.imageSrc;
     let ls_users = localStorage.getItem('users');
-
-
 
     if (this.registerInstance.registedUsers[this.state.account]) {
       console.log('User already exists');
@@ -92,23 +101,43 @@ class SignUpForm extends Component {
         //如果ls_users存在证明已有用户注册,判断密码，用户名是否正确
         console.log("ʕ•͡-•ʔฅ im in user existed");
         obj = JSON.parse(ls_users)
-        //console.log(obj);
+
         //对本地存储数据进行便利与输入值对比
-        let fg = false
-        obj.map(item => {
+        let fg = true
+        obj.some(item => {
           //ssn已存在
           if (item.ssn === ssn) {
-            alert('This ssn has already registered')
-            this.props.history.push('/user')
-          }
-          else {
-            fg = true;
+            console.log(item.ssn)
+            console.log(ssn)
+            fg = false;
             return fg;
           }
+          //alert('This ssn has already registered')
+          //this.props.history.push('/user')
         })
+
+        // let ca = true
+        // obj.some(item => {
+        //   //ssn已存在
+        //   if (item.imageSrc === imageSrc) {
+        //     console.log(item.imageSrc)
+        //     console.log(imageSrc)
+        //     ca = false;
+        //     return ca;
+        //   } else if (imageSrc == null) {
+        //     alert('Please verify yourself through camera.')
+        //   }
+        //   //alert('This ssn has already registered')
+        //   //this.props.history.push('/user')
+        // })
+
+        console.log(fg)
+        //console.log(ca)
+
 
         if (fg) {//fg为ssn没有被注册过，下面判断用户名
           //对存储数据遍历，比对用户名与ssn
+
           let f = false
           obj.map(item => {
             if (item.username === username) {
@@ -116,19 +145,20 @@ class SignUpForm extends Component {
               return f;
             }
           })
+
           if (f) {
             alert('This username has already been taken')
           } else {
             console.log('username has not been taken')
             //没找到对将用户保存到本地，进行自动注册
 
-            this.registerInstance.regist(username, password, ssn, { from: this.state.account }).then(() => {
+            this.registerInstance.regist(username, password, ssn,{ from: this.state.account }).then(() => {
               if (this.registerInstance.registedUsers[this.state.account]) {
                 console.log('User already exists');
                 alert('User already exists')
               } else {
-                obj.push({ username, password, ssn });
-                localStorage.setItem('users', JSON.stringify(obj));
+                obj.push({ username, password, ssn});
+                localStorage.setItem('users', JSON.stringify(obj));//JSON.stringify(obj));
                 alert('SignUp Successfully');
               }
 
@@ -136,47 +166,54 @@ class SignUpForm extends Component {
           }
 
         }
+        else {
+          alert('This ssn has already registered')
+
+          //let obj = JSON.parse(ls_users)
+          //console.log(obj)
+          // obj.map((user) => {
+          //   console.log("im in map")
+          //   console.log(user)
+          //   users.push({
+          //     name: user.name,
+          //     password: user.password,
+          //     ssn: user.ssn
+          //     //localStorage.setItem('users', JSON.stringify({ name, ssn }))
+          //     //this.props.history.push('/home')
+          //   })
+          // })
+          //obj.push({ username, password, ssn })
+
+          // this.registerInstance.regist(username, password, ssn, { from: this.state.account }).then(() => {
+          //   if (this.registerInstance.registedUsers[this.state.account]) {
+          //     console.log('User already exists');
+          //     alert('User already exists')
+          //   } else {
+          //     obj.push({ username, password, ssn });
+          //     localStorage.setItem('users', JSON.stringify(obj));
+          //     alert('SignUp Successfully');
+          //   }
+          // });
+        }
       }
-
-      else {//没有用户注册，直接保存到本地存储
-
-        //let obj = JSON.parse(ls_users)
-        //console.log(obj)
-        // obj.map((user) => {
-        //   console.log("im in map")
-        //   console.log(user)
-        //   users.push({
-        //     name: user.name,
-        //     password: user.password,
-        //     ssn: user.ssn
-        //     //localStorage.setItem('users', JSON.stringify({ name, ssn }))
-        //     //this.props.history.push('/home')
-        //   })
-        // })
-        //obj.push({ username, password, ssn })
-
-        this.registerInstance.regist(username, password, ssn, { from: this.state.account }).then(() => {
+      else {
+        //alert('This ssn has already registered2')
+        this.registerInstance.regist(username, password, ssn,{ from: this.state.account }).then(() => {
           if (this.registerInstance.registedUsers[this.state.account]) {
             console.log('User already exists');
             alert('User already exists')
           } else {
-            obj.push({ username, password, ssn });
-            localStorage.setItem('users', JSON.stringify(obj));
+            obj.push({ username, password, ssn});
+            localStorage.setItem('users', JSON.stringify(obj));//JSON.stringify(obj));
             alert('SignUp Successfully');
           }
+
         });
-
-
-
-
-
       }
-
-
-      //this.props.history.push('/home')
     }
-  }
 
+
+  }
 
 
 
